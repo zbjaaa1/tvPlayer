@@ -2088,6 +2088,45 @@ public class PlayerActivity extends Activity {
         return null;
     }
 
+    Uri findLast() {
+        // TODO: Unify with searchSubtitles()
+        if (mPrefs.scopeUri != null || isTvBox) {
+            DocumentFile video = null;
+            File videoRaw = null;
+
+            if (!isTvBox && mPrefs.scopeUri != null) {
+                if ("com.android.externalstorage.documents".equals(mPrefs.mediaUri.getHost())) {
+                    // Fast search based on path in uri
+                    video = SubtitleUtils.findUriInScope(this, mPrefs.scopeUri, mPrefs.mediaUri);
+                } else {
+                    // Slow search based on matching metadata, no path in uri
+                    // Provider "com.android.providers.media.documents" when using "Videos" tab in file picker
+                    DocumentFile fileScope = DocumentFile.fromTreeUri(this, mPrefs.scopeUri);
+                    DocumentFile fileMedia = DocumentFile.fromSingleUri(this, mPrefs.mediaUri);
+                    video = SubtitleUtils.findDocInScope(fileScope, fileMedia);
+                }
+            } else if (isTvBox) {
+                videoRaw = new File(mPrefs.mediaUri.getSchemeSpecificPart());
+                video = DocumentFile.fromFile(videoRaw);
+            }
+
+            if (video != null) {
+                DocumentFile next;
+                if (!isTvBox) {
+                    next = SubtitleUtils.findLast(video);
+                } else {
+                    File parentRaw = videoRaw.getParentFile();
+                    DocumentFile dir = DocumentFile.fromFile(parentRaw);
+                    next = SubtitleUtils.findLast(video, dir);
+                }
+                if (next != null) {
+                    return next.getUri();
+                }
+            }
+        }
+        return null;
+    }
+
     void askForScope(boolean loadSubtitlesOnCancel, boolean skipToNextOnCancel) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(PlayerActivity.this);
         builder.setMessage(String.format(getString(R.string.request_scope), getString(R.string.app_name)));
