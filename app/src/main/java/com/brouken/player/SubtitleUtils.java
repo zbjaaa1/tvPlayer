@@ -206,11 +206,66 @@ class SubtitleUtils {
                     }
                 }
             }
+            for (DocumentFile file : list) {
+                if (file.getName().equals(videoName)) {
+                    break;
+                } else {
+                    if (isVideoFile(file)) {
+                        return file;
+                    }
+                }
+            }
+            
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
 
-        return null;
+        return isVideoFile(video) ? video : null;
+    }
+    
+    public static DocumentFile findLast(DocumentFile video) {
+        DocumentFile dir = video.getParentFile();
+        return findLast(video, dir);
+    }
+
+    public static DocumentFile findLast(DocumentFile video, DocumentFile dir) {
+        if (dir == null) {
+            return null;
+        }
+
+        try {
+            DocumentFile[] list = dir.listFiles();
+            Arrays.sort(list, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+
+            final String videoName = video.getName();
+            boolean matchFound = false;
+
+            for (int i = list.length - 1; i >= 0; i--) {
+                DocumentFile file = list[i];
+                if (file.getName().equals(videoName)) {
+                    matchFound = true;
+                } else if (matchFound) {
+                    if (isVideoFile(file)) {
+                        return file;
+                    }
+                }
+            }
+            for (int i = list.length - 1; i >= 0; i--) {
+                DocumentFile file = list[i];
+                if (file.getName().equals(videoName)) {
+                    break;
+                } else {
+                    if (isVideoFile(file)) {
+                        return file;
+                    }
+                }
+            }
+            
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+
+        return isVideoFile(video) ? video : null;
     }
 
     public static boolean isVideoFile(DocumentFile file) {
