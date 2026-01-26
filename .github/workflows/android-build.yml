@@ -24,13 +24,7 @@ jobs:
           -Pandroid.injected.signing.key.alias=key
           -Pandroid.injected.signing.key.password=${{ secrets.KEYSTORE_PASSWORD }}
 
-      - uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            app/build/outputs/apk/latestUniversal/release/*.apk
-            app/build/outputs/apk/legacyUniversal/release/*.apk
-          prerelease: true
-          draft: true
+
 
       - uses: actions/upload-artifact@v4
         with:
