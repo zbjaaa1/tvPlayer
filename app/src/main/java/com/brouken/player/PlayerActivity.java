@@ -730,7 +730,7 @@ public class PlayerActivity extends Activity {
             playerView.removeCallbacks(barsHider);
             Utils.toggleSystemUi(this, playerView, true);
         }
-        initializePlayer();
+        initializePlayer(true);
         updateButtonRotation();
     }
 
@@ -907,6 +907,18 @@ public class PlayerActivity extends Activity {
                     return true;
                 }
                 break;
+            case KeyEvent.KEYCODE_DPAD_UP:
+                //if (!controllerVisibleFully){
+                if (lastUri != null) {
+                    return true;
+                }
+                break;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                //if (!controllerVisibleFully){
+                if (nextUri != null) {
+                    return true;
+                }
+                break;
             case KeyEvent.KEYCODE_BACK:
                 if (isTvBox) {
                     if (controllerVisible && player != null && player.isPlaying()) {
@@ -919,16 +931,6 @@ public class PlayerActivity extends Activity {
                 break;
             case KeyEvent.KEYCODE_UNKNOWN:
                 return super.onKeyDown(keyCode, event);
-            case KeyEvent.KEYCODE_DPAD_UP:
-                if (!controllerVisibleFully){
-                    return true;
-                }
-                break;
-            case KeyEvent.KEYCODE_DPAD_DOWN:
-                if (!controllerVisibleFully){
-                    return true;
-                }
-                break;
             default:
                 if (!controllerVisibleFully) {
                     playerView.showController();
@@ -957,13 +959,15 @@ public class PlayerActivity extends Activity {
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_UP:
-                if (!controllerVisibleFully){
+                //if (!controllerVisibleFully){
+                if (lastUri != null) {
                     skipToLast();
                     return true;
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_DOWN:
-                if (!controllerVisibleFully){
+                //if (!controllerVisibleFully){
+                if (nextUri != null) {
                     skipToNext();
                     return true;
                 }
@@ -1198,6 +1202,10 @@ public class PlayerActivity extends Activity {
     }
 
     public void initializePlayer() {
+        initializePlayer(false);
+    }
+    
+    public void initializePlayer(boolean load) {
         boolean isNetworkUri = Utils.isSupportedNetworkUri(mPrefs.mediaUri);
         haveMedia = mPrefs.mediaUri != null;
 
@@ -1336,7 +1344,7 @@ public class PlayerActivity extends Activity {
                 MediaItem.SubtitleConfiguration subtitle = SubtitleUtils.buildSubtitle(this, mPrefs.subtitleUri, null, true);
                 mediaItemBuilder.setSubtitleConfigurations(Collections.singletonList(subtitle));
             }
-            player.setMediaItem(mediaItemBuilder.build(), mPrefs.getPosition());
+            player.setMediaItem(mediaItemBuilder.build(), load ? mPrefs.getPosition() : 0);
 
             try {
                 if (loudnessEnhancer != null) {
