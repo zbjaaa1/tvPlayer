@@ -416,6 +416,21 @@ public final class BoxParser {
         editListDurations,
         editListMediaTimes);
   }
+  
+    private static TrackSampleTable buildEmptySampleTable(Track track) {
+    return new TrackSampleTable(
+        track,
+        new long[0],
+        new int[0],
+        0,
+        new long[0],
+        new int[0],
+        new int[0],
+        true,
+        0,
+        0
+    );
+}
 
   /**
    * Parses an stbl box (defined in ISO/IEC 14496-12).
@@ -429,6 +444,7 @@ public final class BoxParser {
   public static TrackSampleTable parseStbl(
       Track track, Mp4Box.ContainerBox stblBox, GaplessInfoHolder gaplessInfoHolder)
       throws ParserException {
+      try {
     SampleSizeBox sampleSizeBox;
     @Nullable LeafBox stszAtom = stblBox.getLeafBoxOfType(Mp4Box.TYPE_stsz);
     if (stszAtom != null) {
@@ -441,8 +457,12 @@ public final class BoxParser {
       }
       sampleSizeBox = new Stz2SampleSizeBox(stz2Atom);
     }
-
+    try {
     int sampleCount = sampleSizeBox.getSampleCount();
+    } catch (Exception e) {
+    Log.w(TAG, "Invalid sampleCount, fallback empty table", e);
+    return buildEmptySampleTable(track);
+}
     if (sampleCount == 0) {
       return new TrackSampleTable(
           track,
@@ -480,7 +500,12 @@ public final class BoxParser {
     @Nullable ParsableByteArray ctts = cttsAtom != null ? cttsAtom.data : null;
 
     // Prepare to read chunk information.
+    try {
     ChunkIterator chunkIterator = new ChunkIterator(stsc, chunkOffsets, chunkOffsetsAreLongs);
+    } catch (Exception e) {
+    Log.w(TAG, "ChunkIterator failed, fallback empty table", e);
+    return buildEmptySampleTable(track);
+}
 
     // Prepare to read sample timestamps.
     stts.setPosition(Mp4Box.FULL_HEADER_SIZE);
@@ -557,6 +582,7 @@ public final class BoxParser {
       int remainingSamplesInChunk = 0;
 
       for (int i = 0; i < sampleCount; i++) {
+      try {
         // Advance to the next chunk if necessary.
         boolean chunkDataComplete = true;
         while (remainingSamplesInChunk == 0 && (chunkDataComplete = chunkIterator.moveNext())) {
@@ -623,6 +649,11 @@ public final class BoxParser {
 
         offset += sizes[i];
         remainingSamplesInChunk--;
+        } catch (Exception e) {
+        Log.w(TAG, "Corrupt sample table at index " + i, e);
+        sampleCount = i; // 截断
+        break;
+    }
       }
       duration = timestampTimeUnits + timestampOffset;
 
@@ -860,6 +891,10 @@ public final class BoxParser {
         editedTimestamps,
         editedFlags,
         editedDurationUs);
+        } catch (Exception e) {
+   Log.w(TAG, "parseStbl fatal fallback", e);
+   return buildEmptySampleTable(track);
+}
   }
 
   @Nullable

@@ -394,6 +394,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
+  try {
     while (true) {
       switch (parserState) {
         case STATE_READING_ATOM_HEADER:
@@ -414,6 +415,9 @@ public final class Mp4Extractor implements Extractor, SeekMap {
           throw new IllegalStateException();
       }
     }
+    } catch (Exception e) {
+    return RESULT_END_OF_INPUT;
+  }
   }
 
   // SeekMap implementation.
