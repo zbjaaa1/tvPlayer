@@ -458,7 +458,7 @@ public final class ParsableByteArray {
   public int readUnsignedIntToInt() {
     int result = readInt();
     if (result < 0) {
-      return readInt() & 0xFFFFFFFFL;
+      result = Math.abs(result);
     }
     return result;
   }
@@ -472,7 +472,7 @@ public final class ParsableByteArray {
   public int readLittleEndianUnsignedIntToInt() {
     int result = readLittleEndianInt();
     if (result < 0) {
-      return value & 0x7FFFFFFF;
+      result = Math.abs(result);
     }
     return result;
   }
@@ -485,7 +485,7 @@ public final class ParsableByteArray {
   public long readUnsignedLongToLong() {
     long result = readLong();
     if (result < 0) {
-      return result & 0x7FFFFFFFFFFFFFFFL;
+      result = Math.abs(result);
     }
     return result;
   }
