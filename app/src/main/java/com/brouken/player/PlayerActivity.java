@@ -111,6 +111,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import android.os.Handler;
+import android.os.Looper;
 
 public class PlayerActivity extends Activity {
 
@@ -184,6 +186,8 @@ public class PlayerActivity extends Activity {
     public static boolean locked = false;
     private Thread nextUriThread;
     private Thread lastUriThread;
+    private Handler autoSaveHandler = new Handler(Looper.getMainLooper());
+    private Runnable autoSaveRunnable;
     public Thread frameRateSwitchThread;
 
     public static boolean restoreControllerTimeout = false;
@@ -719,11 +723,28 @@ public class PlayerActivity extends Activity {
             }
         }
     }
+    
+    private void startAutoSave() {
+        autoSaveRunnable = new Runnable() {
+        @Override
+        public void run() {
+
+            if (player != null && haveMedia) {
+                savePlayer();   // 保存进度
+            }
+
+            autoSaveHandler.postDelayed(this, 5000); // 每5秒
+        }
+    };
+
+    autoSaveHandler.postDelayed(autoSaveRunnable, 5000);
+    }
 
     @Override
     public void onStart() {
         super.onStart();
         alive = true;
+        startAutoSave();
         if (!(isTvBox && Build.VERSION.SDK_INT >= 31)) {
             updateSubtitleStyle(this);
         }
@@ -753,6 +774,9 @@ public class PlayerActivity extends Activity {
     @Override
     public void onStop() {
         super.onStop();
+        if (autoSaveHandler != null && autoSaveRunnable != null) {
+            autoSaveHandler.removeCallbacks(autoSaveRunnable);
+        }
         alive = false;
         if (Build.VERSION.SDK_INT >= 31) {
             playerView.removeCallbacks(barsHider);
