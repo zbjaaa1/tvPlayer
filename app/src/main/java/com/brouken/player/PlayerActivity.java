@@ -768,6 +768,9 @@ public class PlayerActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        if (player != null) {
+            player.pause();
+        }
         savePlayer();
     }
 
