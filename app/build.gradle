@@ -1,0 +1,52 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdkVersion 30
+    ndkVersion '21.4.7075529'
+
+    defaultConfig {
+        applicationId "com.brouken.player"
+        minSdkVersion 19
+        targetSdkVersion 30
+        versionCode 13
+        versionName "0.13"
+        multiDexEnabled true
+    }
+
+    buildTypes {
+        all {
+            ndk {
+                abiFilters 'armeabi-v7a'
+            }
+        }
+        release {
+            minifyEnabled false
+            //proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+        //coreLibraryDesugaringEnabled true
+    }
+    dexOptions {
+        javaMaxHeapSize "4g"
+        additionalParameters += '--multi-dex'
+        additionalParameters += '--set-max-idx-number=48000'
+        additionalParameters += '--minimal-main-dex'
+    }
+}
+
+dependencies {
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.12.2'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.12.2'
+    implementation 'com.google.android.exoplayer:extension-mediasession:2.12.2'
+    implementation 'com.getkeepsafe.taptargetview:taptargetview:1.13.0'
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
+    //coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation fileTree(dir: "libs", include: ["*.aar"])
+}
