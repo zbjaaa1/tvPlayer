@@ -761,6 +761,9 @@ public class PlayerActivity extends Activity {
                 if (mPrefs.subtitleTrack >= 0)
                     setSelectedTrack(C.TRACK_TYPE_TEXT, mPrefs.subtitleTrack);
             }
+            if (state == Player.STATE_ENDED) {
+                skipToNext();
+            }
         }
 
         @Override
