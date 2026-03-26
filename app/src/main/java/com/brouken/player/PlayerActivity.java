@@ -390,7 +390,10 @@ public class PlayerActivity extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_UP:
+                skipToLast();
+                return true;
             case KeyEvent.KEYCODE_DPAD_DOWN:
+                skipToNext();
                 return true;
             case KeyEvent.KEYCODE_DPAD_LEFT:
             case KeyEvent.KEYCODE_BUTTON_L2:
@@ -440,10 +443,7 @@ public class PlayerActivity extends Activity {
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_UP:
-                skipToLast();
-                return true;
             case KeyEvent.KEYCODE_DPAD_DOWN:
-                skipToNext();
                 return true;
         }
         return super.onKeyUp(keyCode, event);
